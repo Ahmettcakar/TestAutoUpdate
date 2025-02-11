@@ -20,27 +20,45 @@ def check_for_updates():
         update_button.config(state=tk.DISABLED)
 
 def download_updates():
-    """Eksik dosyaları indirir."""
+    """Eksik dosyaları indirir ve uygular."""
     result = subprocess.run(["python", "updater.py"], capture_output=True, text=True)
 
     if "Güncellenecek dosyalar:" in result.stdout:
-        update_list = result.stdout.split("Güncellenecek dosyalar:")[-1].strip().split(", ")
+        update_list = result.stdout.split("Güncellenecek dosyalar:")[1].strip().split(", ")
+        update_list = [file.strip() for file in update_list]  # Boşlukları temizle
 
         for file_name in update_list:
-            file_name = file_name.strip()
             file_url = f"https://raw.githubusercontent.com/Ahmettcakar/TestAutoUpdate/main/{file_name}"
             
             try:
-                response = requests.get(file_url)
+                print(f"🔄 {file_name} indiriliyor...")  # İndirme işlemi başlıyor
+                
+                response = requests.get(file_url, stream=True)
                 if response.status_code == 200:
-                    with open(file_name, "w", encoding="utf-8") as f:
+                    with open(file_name + ".new", "w", encoding="utf-8") as f:
                         f.write(response.text)
+
+                    # Dosya gerçekten indirildi mi?
+                    if os.path.exists(file_name + ".new"):
+                        print(f"✅ {file_name} başarıyla indirildi.")
+
+                    # Eski dosyanın yedeğini al
+                    if os.path.exists(file_name):
+                        os.rename(file_name, file_name + ".backup")
+
+                    # Yeni dosyayı eski dosyanın yerine koy
+                    os.rename(file_name + ".new", file_name)
+
+                else:
+                    print(f"❌ {file_name} indirilemedi. HTTP Hata Kodu: {response.status_code}")
             except Exception as e:
                 message_label.config(text=f"Hata: {e}")
                 return
         
         message_label.config(text="Güncelleme tamamlandı! Program yeniden başlatılıyor.")
         root.after(2000, restart_program)
+
+
 
 def restart_program():
     """Programı yeniden başlatır."""
