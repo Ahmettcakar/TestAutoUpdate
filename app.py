@@ -5,9 +5,10 @@ import sys
 import requests
 
 def check_for_updates():
+    print("test")
     """Updater'ı çalıştırarak eksik dosyaları kontrol eder."""
     result = subprocess.run(["python", "updater.py"], capture_output=True, text=True)
-
+    
     if "Güncellenecek dosyalar:" in result.stdout:
         update_list = result.stdout.split("Güncellenecek dosyalar:")[-1].strip()
         message_label.config(text=f"Güncellenecek dosyalar:\n{update_list}")
