@@ -17,17 +17,17 @@ def get_latest_commit_sha():
             commit_data = response.json()
             return commit_data[0]["sha"]  # En son commit'in SHA'sını al
         else:
-            print(f"🚨 GitHub Commit API Hatası: {response.status_code}")
+            print(f" GitHub Commit API Hatası: {response.status_code}")
             return None
     except Exception as e:
-        print(f"⚠️ Bağlantı hatası: {e}")
+        print(f" Bağlantı hatası: {e}")
         return None
 
 def get_latest_files():
     """GitHub'dan commit SHA'ya göre güncellenmiş `files.json` dosyasını çeker."""
     commit_sha = get_latest_commit_sha()
     if not commit_sha:
-        print("🚨 Commit SHA alınamadı, güncelleme kontrol edilemiyor.")
+        print(" Commit SHA alınamadı, güncelleme kontrol edilemiyor.")
         return None
 
     files_list_url = FILES_LIST_URL_TEMPLATE.format(commit_sha=commit_sha)
@@ -37,23 +37,23 @@ def get_latest_files():
         if response.status_code == 200:
             return json.loads(response.text)
         else:
-            print(f"🚨 GitHub RAW Hatası: {response.status_code}")
+            print(f" GitHub RAW Hatası: {response.status_code}")
             return None
     except Exception as e:
-        print(f"⚠️ Bağlantı hatası: {e}")
+        print(f" Bağlantı hatası: {e}")
         return None
 
 def get_local_files():
     """Bilgisayardaki mevcut `files.json` dosyasını okur."""
     if not os.path.exists(LOCAL_FILES_JSON):
-        print("⚠️ Yerel `files.json` dosyası bulunamadı, tüm dosyalar güncellenecek.")
+        print(" Yerel `files.json` dosyası bulunamadı, tüm dosyalar güncellenecek.")
         return {}
 
     try:
         with open(LOCAL_FILES_JSON, "r", encoding="utf-8") as f:
             return json.load(f)
     except Exception as e:
-        print(f"⚠️ Yerel `files.json` okunamadı: {e}")
+        print(f" Yerel `files.json` okunamadı: {e}")
         return {}
 
 def check_for_updates():
@@ -62,7 +62,7 @@ def check_for_updates():
     local_files = get_local_files()
 
     if not latest_files:
-        print("🚨 Güncelleme bilgisi alınamadı.")
+        print(" Güncelleme bilgisi alınamadı.")
         return
 
     update_list = []  # Güncellenmesi gereken dosyaları tutan liste
@@ -76,7 +76,7 @@ def check_for_updates():
     if update_list:
         print(f"Güncellenecek dosyalar: {', '.join(update_list)}")
     else:
-        print("✅ Uygulama zaten güncel.")
+        print(" Uygulama zaten güncel.")
 
 if __name__ == "__main__":
     check_for_updates()
