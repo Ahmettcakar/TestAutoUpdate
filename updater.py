@@ -1,0 +1,1 @@
+print("Güncelleme kontrol ediliyor...")
