@@ -6,7 +6,7 @@ import requests
 import json
 
 def check_for_updates():
-    print("test son")
+    print("test ")
     """Updater'i calistirarak eksik dosyalari kontrol eder."""
     result = subprocess.run(["python", "updater.py"], capture_output=True, text=True)
     
