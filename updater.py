@@ -1,8 +1,6 @@
 import requests
 import os
 import shutil
-import subprocess
-import sys
 import json
 
 # GitHub'daki en güncel dosya listesinin olduğu URL
@@ -40,11 +38,12 @@ def download_file(file_name):
         return False  # Hata durumunda sessiz devam et
 
 def apply_updates():
-    """Güncellenmiş dosyaları uygular."""
+    """Güncellenmiş dosyaları uygular ve stdout ile sonucu döndürür."""
     latest_files = get_latest_files()
     
     if not latest_files:
-        return  # GitHub'dan dosya listesi alınamazsa işlem yapma
+        print("ERROR: Güncelleme bilgisi alınamadı.")
+        return
 
     updated_files = []
     
@@ -63,13 +62,13 @@ def apply_updates():
                 updated_files.append(file_name)
     
     if updated_files:
-        # Güncelleme tamamlandıysa programı yeniden başlat
-        subprocess.Popen([sys.executable] + updated_files)
-        sys.exit()
+        print(f"Güncellenen dosyalar: {', '.join(updated_files)}")
+    else:
+        print("Uygulama zaten güncel.")
 
 def check_for_updates():
     """Güncellemeleri kontrol et."""
     apply_updates()
 
 if __name__ == "__main__":
-    check_fo
+    check_for_updates()
