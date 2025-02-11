@@ -5,7 +5,7 @@ import sys
 import requests
 
 def check_for_updates():
-    print("test")
+    print("alksdjflaksjdla")
     """Updater'ı çalıştırarak eksik dosyaları kontrol eder."""
     result = subprocess.run(["python", "updater.py"], capture_output=True, text=True)
     
