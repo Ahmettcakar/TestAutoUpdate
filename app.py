@@ -1,1 +1,1 @@
-print("Test Uygulaması Çalışıyor!")
+print("Test Uygulaması Çalışıyor ..")
