@@ -4,6 +4,8 @@ import shutil
 import json
 import sys
 import subprocess
+import tkinter as tk
+from tkinter import messagebox
 
 # GitHub'daki en güncel dosya listesinin olduğu URL
 FILES_LIST_URL = "https://raw.githubusercontent.com/Ahmettcakar/TestAutoUpdate/main/files.json"
@@ -19,7 +21,7 @@ def get_latest_files():
             return json.loads(response.text)
         return None
     except Exception as e:
-        print("Bağlantı hatası:", e)
+        messagebox.showerror("Bağlantı Hatası", f"Bağlantı hatası: {e}")
         return None
 
 def get_local_files():
@@ -39,13 +41,12 @@ def download_file(file_name):
             with open(file_name + ".new", "w", encoding="utf-8") as f:
                 f.write(response.text)
 
-            print(f"✅ {file_name} dosyası başarıyla indirildi.")
             return True
         else:
-            print(f"❌ {file_name} indirilemedi. HTTP Hatası: {response.status_code}")
+            messagebox.showerror("İndirme Hatası", f"{file_name} indirilemedi. HTTP Hatası: {response.status_code}")
             return False
     except Exception as e:
-        print(f"❌ {file_name} indirilirken hata oluştu:", e)
+        messagebox.showerror("İndirme Hatası", f"{file_name} indirilirken hata oluştu: {e}")
         return False
 
 def apply_updates(latest_files):
@@ -58,7 +59,6 @@ def apply_updates(latest_files):
         local_version = local_files.get(file_name, "0.0.0")
         
         if latest_version != local_version:
-            print(f"🔄 {file_name} dosyası güncellenecek ({local_version} → {latest_version})")
             if download_file(file_name):
                 # Eski dosyanın yedeğini al
                 if os.path.exists(file_name):
@@ -76,15 +76,32 @@ def apply_updates(latest_files):
         with open(LOCAL_FILES_LIST, "w") as f:
             json.dump(local_files, f, indent=4)
         
-        print("✅ Güncellemeler tamamlandı! Güncellenen dosyalar:", updated_files)
+        messagebox.showinfo("Güncelleme Tamamlandı", f"Güncellenen dosyalar: {', '.join(updated_files)}")
         subprocess.Popen([sys.executable] + updated_files)
         sys.exit()
     else:
-        print("✅ Uygulama güncel, değişiklik yok.")
+        messagebox.showinfo("Güncelleme Kontrolü", "Uygulama güncel.")
 
-# Güncelleme kontrolü
-latest_files = get_latest_files()
-if latest_files:
-    apply_updates(latest_files)
-else:
-    print("❌ Güncelleme bilgileri alınamadı.")
+def check_for_updates():
+    """Güncellemeleri kontrol et."""
+    latest_files = get_latest_files()
+    if latest_files:
+        apply_updates(latest_files)
+    else:
+        messagebox.showerror("Hata", "Güncelleme bilgileri alınamadı.")
+
+# Tkinter Arayüzü
+root = tk.Tk()
+root.title("Güncelleme Kontrolü")
+root.geometry("300x150")
+
+label = tk.Label(root, text="Güncellemeleri Kontrol Et", font=("Arial", 12))
+label.pack(pady=10)
+
+update_button = tk.Button(root, text="Güncellemeleri Kontrol Et", command=check_for_updates, font=("Arial", 10))
+update_button.pack(pady=20)
+
+exit_button = tk.Button(root, text="Kapat", command=root.quit, font=("Arial", 10))
+exit_button.pack(pady=5)
+
+root.mainloop()
