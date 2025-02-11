@@ -1,7 +1,7 @@
 import tkinter as tk
 import subprocess
 import os
-
+import sys
 def check_for_updates():
     print("test")
     """Updater'ı çalıştırarak güncellemeleri kontrol eder."""

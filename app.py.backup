@@ -1,9 +1,22 @@
 import tkinter as tk
 import subprocess
+import os
+import sys
 
 def check_for_updates():
     """Updater'ı çalıştırarak güncellemeleri kontrol eder."""
-    subprocess.Popen(["python", "updater.py"])
+    result = subprocess.run(["python", "updater.py"], capture_output=True, text=True)
+    
+    if "Güncellenen dosyalar:" in result.stdout:
+        message_label.config(text="Güncelleme tamamlandı! Program yeniden başlatılıyor.")
+        root.after(2000, restart_program)  # 2 saniye bekleyip programı yeniden başlat
+    else:
+        message_label.config(text="Uygulama zaten güncel.")
+
+def restart_program():
+    """Programı yeniden başlatır."""
+    root.destroy()
+    os.execl(sys.executable, sys.executable, *sys.argv)
 
 # Ana pencere oluştur
 root = tk.Tk()
