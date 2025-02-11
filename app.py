@@ -5,6 +5,7 @@ import sys
 import requests
 
 def check_for_updates():
+    print("test")
     """Updater'ı çalıştırarak eksik dosyaları kontrol eder."""
     result = subprocess.run(["python", "updater.py"], capture_output=True, text=True)
 
@@ -20,6 +21,7 @@ def check_for_updates():
         update_button.config(state=tk.DISABLED)
 
 def download_updates():
+    print("test")
     """Eksik dosyaları indirir."""
     result = subprocess.run(["python", "updater.py"], capture_output=True, text=True)
 
@@ -43,6 +45,7 @@ def download_updates():
         root.after(2000, restart_program)
 
 def restart_program():
+    print("test")
     """Programı yeniden başlatır."""
     root.destroy()
     os.execl(sys.executable, sys.executable, *sys.argv)
