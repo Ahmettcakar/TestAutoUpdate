@@ -1,15 +1,12 @@
 import requests
 import os
 import shutil
-import json
-import sys
 import subprocess
+import sys
+import json
 
 # GitHub'daki en güncel dosya listesinin olduğu URL
 FILES_LIST_URL = "https://raw.githubusercontent.com/Ahmettcakar/TestAutoUpdate/main/files.json"
-
-# Bilgisayardaki yerel dosyaların sürüm bilgilerini saklayacağımız dosya
-LOCAL_FILES_LIST = "local_files.json"
 
 def get_latest_files():
     """GitHub'dan en güncel dosya listesini çeker."""
@@ -21,12 +18,11 @@ def get_latest_files():
     except Exception:
         return None  # Hata durumunda sessiz çalışsın
 
-def get_local_files():
-    """Yereldeki dosyaların sürüm listesini yükler."""
-    if os.path.exists(LOCAL_FILES_LIST):
-        with open(LOCAL_FILES_LIST, "r") as f:
-            return json.load(f)
-    return {}
+def get_current_version(file_name):
+    """Mevcut dosyanın versiyonunu bulmaya çalışır."""
+    if os.path.exists(file_name):
+        return "Mevcut"  # Eğer dosya varsa, güncelleme kontrolüne devam et
+    return "0.0.0"  # Eğer dosya yoksa, eski sürüm olarak kabul et ve indir
 
 def download_file(file_name):
     """Belirtilen dosyayı GitHub'dan indirir."""
@@ -43,16 +39,19 @@ def download_file(file_name):
     except Exception:
         return False  # Hata durumunda sessiz devam et
 
-def apply_updates(latest_files):
+def apply_updates():
     """Güncellenmiş dosyaları uygular."""
-    local_files = get_local_files()
+    latest_files = get_latest_files()
     
+    if not latest_files:
+        return  # GitHub'dan dosya listesi alınamazsa işlem yapma
+
     updated_files = []
     
     for file_name, latest_version in latest_files.items():
-        local_version = local_files.get(file_name, "0.0.0")
+        current_version = get_current_version(file_name)
         
-        if latest_version != local_version:
+        if current_version == "Mevcut" or latest_version > current_version:
             if download_file(file_name):
                 # Eski dosyanın yedeğini al
                 if os.path.exists(file_name):
@@ -62,23 +61,15 @@ def apply_updates(latest_files):
                 # Yeni dosyayı eski ismiyle kaydet
                 shutil.move(file_name + ".new", file_name)
                 updated_files.append(file_name)
-                
-                # Sürüm bilgilerini güncelle
-                local_files[file_name] = latest_version
     
     if updated_files:
-        with open(LOCAL_FILES_LIST, "w") as f:
-            json.dump(local_files, f, indent=4)
-        
-        # Güncellenen dosyalar varsa programı yeniden başlat
+        # Güncelleme tamamlandıysa programı yeniden başlat
         subprocess.Popen([sys.executable] + updated_files)
         sys.exit()
 
 def check_for_updates():
     """Güncellemeleri kontrol et."""
-    latest_files = get_latest_files()
-    if latest_files:
-        apply_updates(latest_files)
+    apply_updates()
 
 if __name__ == "__main__":
-    check_for_updates()
+    check_fo
