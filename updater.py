@@ -4,8 +4,6 @@ import shutil
 import json
 import sys
 import subprocess
-import tkinter as tk
-from tkinter import messagebox
 
 # GitHub'daki en güncel dosya listesinin olduğu URL
 FILES_LIST_URL = "https://raw.githubusercontent.com/Ahmettcakar/TestAutoUpdate/main/files.json"
@@ -20,9 +18,8 @@ def get_latest_files():
         if response.status_code == 200:
             return json.loads(response.text)
         return None
-    except Exception as e:
-        messagebox.showerror("Bağlantı Hatası", f"Bağlantı hatası: {e}")
-        return None
+    except Exception:
+        return None  # Hata durumunda sessiz çalışsın
 
 def get_local_files():
     """Yereldeki dosyaların sürüm listesini yükler."""
@@ -40,14 +37,11 @@ def download_file(file_name):
         if response.status_code == 200:
             with open(file_name + ".new", "w", encoding="utf-8") as f:
                 f.write(response.text)
-
             return True
         else:
-            messagebox.showerror("İndirme Hatası", f"{file_name} indirilemedi. HTTP Hatası: {response.status_code}")
             return False
-    except Exception as e:
-        messagebox.showerror("İndirme Hatası", f"{file_name} indirilirken hata oluştu: {e}")
-        return False
+    except Exception:
+        return False  # Hata durumunda sessiz devam et
 
 def apply_updates(latest_files):
     """Güncellenmiş dosyaları uygular."""
@@ -76,32 +70,15 @@ def apply_updates(latest_files):
         with open(LOCAL_FILES_LIST, "w") as f:
             json.dump(local_files, f, indent=4)
         
-        messagebox.showinfo("Güncelleme Tamamlandı", f"Güncellenen dosyalar: {', '.join(updated_files)}")
+        # Güncellenen dosyalar varsa programı yeniden başlat
         subprocess.Popen([sys.executable] + updated_files)
         sys.exit()
-    else:
-        messagebox.showinfo("Güncelleme Kontrolü", "Uygulama güncel.")
 
 def check_for_updates():
     """Güncellemeleri kontrol et."""
     latest_files = get_latest_files()
     if latest_files:
         apply_updates(latest_files)
-    else:
-        messagebox.showerror("Hata", "Güncelleme bilgileri alınamadı.")
 
-# Tkinter Arayüzü
-root = tk.Tk()
-root.title("Güncelleme Kontrolü")
-root.geometry("300x150")
-
-label = tk.Label(root, text="Güncellemeleri Kontrol Et", font=("Arial", 12))
-label.pack(pady=10)
-
-update_button = tk.Button(root, text="Güncellemeleri Kontrol Et", command=check_for_updates, font=("Arial", 10))
-update_button.pack(pady=20)
-
-exit_button = tk.Button(root, text="Kapat", command=root.quit, font=("Arial", 10))
-exit_button.pack(pady=5)
-
-root.mainloop()
+if __name__ == "__main__":
+    check_for_updates()
