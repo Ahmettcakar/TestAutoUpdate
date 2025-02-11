@@ -3,6 +3,7 @@ import subprocess
 import os
 
 def check_for_updates():
+    print("test")
     """Updater'ı çalıştırarak güncellemeleri kontrol eder."""
     result = subprocess.run(["python", "updater.py"], capture_output=True, text=True)
     
